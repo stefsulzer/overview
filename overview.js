@@ -14,20 +14,25 @@ unhideSection, removeOverview
   let content = 'p, img, pre, ul, ol';
   let headers = 'h1, h2, h3, h4, h5, h6';
   let overview = 'uniqueVariableTogglingOverview';
-  if (window.uniqueVariableTogglingOverview === undefined) {
-    window.uniqueVariableTogglingOverview = false;
-  }
+  let handleClicks = 'uniqueVariableStoringListener';
   if (!window[overview]) {
     let log = console.log;
     window[overview] = true;
-    addFlatly();
-    function addFlatly() {
-      if (!document.querySelector('link[href="https://bootswatch.com/flatly/bootstrap.min.css"]')) {
-        let script = document.createElement('link');
-        script.setAttribute('rel', 'stylesheet');
-        script.setAttribute('href', 'https://bootswatch.com/flatly/bootstrap.min.css');
-        document.body.appendChild(script);
-      }
+    addStyle();
+    function addStyle() {
+      let style = document.createElement('style');
+      style.setAttribute('overviewStyle', 'text/css');
+      style.setAttribute('type', 'text/css');
+      style.setAttribute('style', 'display: none');
+      style.innerHTML = `
+        .overview-well {
+        background-color: #f5f5f5;
+        border: 1px solid #030303;
+        border-radius: 3px;
+        letter-spacing: 1px;
+        padding: 19px;
+        }`;
+      document.body.appendChild(style);
     }
     hideContent();
     function hideContent() {
@@ -40,34 +45,30 @@ unhideSection, removeOverview
     function addWells() {
       let collection = document.querySelectorAll(headers);
         for (let i in Object.keys(collection)) {
-        collection[i].className += 'well overviewWell';
+        collection[i].className += ' overview-well';
         collection[i].setAttribute('hiddingSection', 'true');
       }
     }
-    document.getElementsByTagName('body')[0].addEventListener('click', handleClicks);
-    function handleClicks(e){
+    window[handleClicks] = function(e) {
       if (e.target.matches(headers)) {
         toggleSection();
       }
-      else if (e.target.parentElement.matches(headers)){
+      else if (e.target.parentElement
+               && e.target.parentElement.matches(headers)){
         toggleSection(e.target.parentElement.nextElementSibling);
-      } else {
+      } else if (e.target.parentElement.previousSiblingElement
+                 && e.target.parentElement.previousSiblingElement.matches(headers)) {
+        toggleSection(e.target.parentElement.firstElementChild);
       }
-
       function toggleSection(point){
         let toggle = 'unhide';
         point = point || e.target.nextElementSibling;
-        if (point.previousElementSibling === null) {
-        }
         if (point.previousElementSibling && point.previousElementSibling.matches(headers)) {
           let header = point.previousElementSibling;
-          if (header.hasAttribute('hiddingSection')) {
-            toggle = 'unhide';
-            header.removeAttribute('hiddingSection');
-          } else {
-            toggle = 'hide';
-            header.setAttribute('hiddingSection', 'true');
-          }
+          toggle = alternateToggle(header, toggle);
+        } else if (point.parentElement.previousSiblingElement && point.parentElement.previousSiblingElement.matches(headers)) {
+          let header = point.parentElement.previousSiblingElement;
+          toggle = alternateToggle(header, toggle);
         }
         if (!point) { return; }
         while (!point.matches(headers)) {
@@ -93,19 +94,30 @@ unhideSection, removeOverview
           collection[idx].setAttribute('hidden', 'true');
         }
       }
-    }
+      function alternateToggle(header, toggle) {
+        if (header.hasAttribute('hiddingSection')) {
+          toggle = 'unhide';
+          header.removeAttribute('hiddingSection');
+        } else {
+          toggle = 'hide';
+          header.setAttribute('hiddingSection', 'true');
+        }
+        return toggle;
+      }
+    };
+    document.body.addEventListener('click', window[handleClicks]);
   }
   else {
-    let overview = 'uniqueVariableTogglingOverview';
-    window[overview] = false;
+    delete window[overview];
     removeOverview();
     function removeOverview() {
+      document.body.removeEventListener('click', window[handleClicks]);
+      delete window[handleClicks];
       removeWells();
       function removeWells() {
         let collection = document.querySelectorAll(headers);
           for (let i in Object.keys(collection)) {
-          collection[i].classList.remove('well');
-          collection[i].classList.remove('overviewWell');
+          collection[i].classList.remove('overview-well');
           if (collection[i].hasAttribute('hiddingSection')) {
             collection[i].removeAttribute('hiddingSection');
           }
@@ -118,11 +130,11 @@ unhideSection, removeOverview
           hiddenCollection[idx].removeAttribute('hidden');
         }
       }
-      removeFlatly();
-      function removeFlatly() {
-        let stylesheet = document.querySelector(
-          'link[href="https://bootswatch.com/flatly/bootstrap.min.css"]');
-        document.body.removeChild(stylesheet);
+      removeStyle();
+      function removeStyle() {
+        let styleScript = document.querySelector(
+          'style[overviewStyle="text/css"]');
+        document.body.removeChild(styleScript);
       }
     }
   }
