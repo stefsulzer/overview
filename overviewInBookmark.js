@@ -8,12 +8,12 @@
   if (!window[overview]) {
     let log = console.log;
     window[overview] = true;
-    addCerulean();
-    function addCerulean() {
-      if (!document.querySelector('link[href="https://bootswatch.com/cerulean/bootstrap.min.css"]')) {
+    addFlatly();
+    function addFlatly() {
+      if (!document.querySelector('link[href="https://bootswatch.com/flatly/bootstrap.min.css"]')) {
         let script = document.createElement('link');
         script.setAttribute('rel', 'stylesheet');
-        script.setAttribute('href', 'https://bootswatch.com/cerulean/bootstrap.min.css');
+        script.setAttribute('href', 'https://bootswatch.com/flatly/bootstrap.min.css');
         document.body.appendChild(script);
       }
     }
@@ -28,41 +28,44 @@
     function addWells() {
       let collection = document.querySelectorAll(headers);
         for (let i in Object.keys(collection)) {
-        collection[i].className += ' well';
+        collection[i].className += 'well overviewWell';
+        collection[i].setAttribute('hiddingSection', 'true');
       }
     }
     document.getElementsByTagName('body')[0].addEventListener('click', handleClicks);
     function handleClicks(e){
       if (e.target.matches(headers)) {
-        unhideSection();
+        toggleSection();
       }
       else if (e.target.parentElement.matches(headers)){
-        /* move up only once to try to find header... */
-        unhideSection(e.target.parentElement.nextElementSibling);
+        toggleSection(e.target.parentElement.nextElementSibling);
       } else {
-        /* Case where title is not a sibling to content!
-          // BUT HOW TO TEST FOR THIS CASE?
-         find first header that is sibling to content, under title
-         find previousElementSibling and removeAttribute('hidden')
-           repeat until find header or previousElementSibling === null */
       }
 
-      function unhideSection(point){
-        /*
-          if no next sibling return OR! GO up and look?
-          if next sibling has no content,
-          move on until there is content
-          unhide collection in sibling,
-          else reached end of document
-            where point is null and do nothing */
+      function toggleSection(point){
+        let toggle = 'unhide';
         point = point || e.target.nextElementSibling;
+        if (point.previousElementSibling === null) {
+        }
+        if (point.previousElementSibling && point.previousElementSibling.matches(headers)) {
+          let header = point.previousElementSibling;
+          if (header.hasAttribute('hiddingSection')) {
+            toggle = 'unhide';
+            header.removeAttribute('hiddingSection');
+          } else {
+            toggle = 'hide';
+            header.setAttribute('hiddingSection', 'true');
+          }
+        }
         if (!point) { return; }
         while (!point.matches(headers)) {
           if (point.matches(content)) {
-            point.removeAttribute('hidden');
+            toggle === 'unhide' ?
+              point.removeAttribute('hidden') : point.setAttribute('hidden', 'true');
           }
           if (point.querySelectorAll(content).length > 0) {
-            unhide(point.querySelectorAll(content));
+            toggle === 'unhide' ?
+              unhide(point.querySelectorAll(content)) : hide(point.querySelectorAll(content));
           }
           point = point.nextElementSibling;
           if (!point) { return; }
@@ -71,6 +74,11 @@
       function unhide(collection) {
         for (let idx in Object.keys(collection)) {
           collection[idx].removeAttribute('hidden');
+        }
+      }
+      function hide(collection) {
+        for (let idx in Object.keys(collection)) {
+          collection[idx].setAttribute('hidden', 'true');
         }
       }
     }
@@ -85,6 +93,10 @@
         let collection = document.querySelectorAll(headers);
           for (let i in Object.keys(collection)) {
           collection[i].classList.remove('well');
+          collection[i].classList.remove('overviewWell');
+          if (collection[i].hasAttribute('hiddingSection')) {
+            collection[i].removeAttribute('hiddingSection');
+          }
         }
       }
       unhideAll();
@@ -94,12 +106,12 @@
           hiddenCollection[idx].removeAttribute('hidden');
         }
       }
-      removeCerulean();
-      function removeCerulean() {
+      removeFlatly();
+      function removeFlatly() {
         let stylesheet = document.querySelector(
-          'link[href="https://bootswatch.com/cerulean/bootstrap.min.css"]');
+          'link[href="https://bootswatch.com/flatly/bootstrap.min.css"]');
         document.body.removeChild(stylesheet);
       }
     }
   }
-})();
+})()
