@@ -108,9 +108,9 @@ unhideSection, removeOverview
     document.body.addEventListener('click', window[handleClicks]);
   }
   else {
-    delete window[overview];
     removeOverview();
     function removeOverview() {
+      delete window[overview];
       document.body.removeEventListener('click', window[handleClicks]);
       delete window[handleClicks];
       removeWells();
