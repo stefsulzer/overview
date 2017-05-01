@@ -1,24 +1,35 @@
 // MAIN OVERVIEW FUNCTIONALITY:
 /*
-Inject stylesheet, hideContentAddWells, handleClicks,
+Inject stylesheet, hideContent, AddWells, handleClicks,
 unhideSection.
 TO COME: REVERT????
 */
+
 (function() {
   let content = 'p, img, pre, ul, ol';
   let headers = 'h1, h2, h3, h4, h5, h6';
   let log = console.log;
   addCerulean();
   function addCerulean() {
-    let script = document.createElement('script');
-    script.setAttribute('src', 'https://bootswatch.com/cerulean/bootstrap.min.css');
-    document.body.appendChild(script);
+    if (!document.querySelector('link[href="https://bootswatch.com/cerulean/bootstrap.min.css"]')) {
+      let script = document.createElement('link');
+      script.setAttribute('rel', 'stylesheet');
+      script.setAttribute('href', 'https://bootswatch.com/cerulean/bootstrap.min.css');
+      document.body.appendChild(script);
+    }
   }
   hideContent();
   function hideContent() {
     let collection = document.querySelectorAll(content);
     for (let i in Object.keys(collection)) {
       collection[i].setAttribute('hidden', 'true');
+    }
+  }
+  addWells();
+  function addWells() {
+    let collection = document.querySelectorAll(headers);
+      for (let i in Object.keys(collection)) {
+      collection[i].className += 'well';
     }
   }
   document.getElementsByTagName('body')[0].addEventListener('click', handleClicks);
