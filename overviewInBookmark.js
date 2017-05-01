@@ -28,7 +28,7 @@
     function addWells() {
       let collection = document.querySelectorAll(headers);
         for (let i in Object.keys(collection)) {
-        collection[i].className += 'well overviewWell';
+        collection[i].className += ' well overviewWell';
         collection[i].setAttribute('hiddingSection', 'true');
       }
     }
@@ -85,7 +85,7 @@
   }
   else {
     let overview = 'uniqueVariableTogglingOverview';
-    window[overview] = false;
+    window[overview] = undefined;
     removeOverview();
     function removeOverview() {
       removeWells();
