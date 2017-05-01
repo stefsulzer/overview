@@ -1,9 +1,3 @@
-// MAIN OVERVIEW FUNCTIONALITY:
-/*
-Inject stylesheet, hideContent, AddWells, handleClicks,
-unhideSection, removeOverview
-*/
-
 (function() {
   let content = 'p, img, pre, ul, ol';
   let headers = 'h1, h2, h3, h4, h5, h6';
@@ -82,11 +76,11 @@ unhideSection, removeOverview
     }
   }
   else {
+    let overview = 'uniqueVariableTogglingOverview';
     window[overview] = false;
     removeOverview();
-  }
-  function removeOverview() {
-      removeWells()
+    function removeOverview() {
+      removeWells();
       function removeWells() {
         let collection = document.querySelectorAll(headers);
           for (let i in Object.keys(collection)) {
@@ -107,4 +101,5 @@ unhideSection, removeOverview
         document.body.removeChild(stylesheet);
       }
     }
-})()
+  }
+})();
